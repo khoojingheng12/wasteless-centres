@@ -268,7 +268,7 @@ function friendly(e) {
   if (c.includes('auth/too-many-requests'))
     return 'Too many attempts. Wait a while and try again.';
   if (c.includes('permission-denied'))
-    return 'Firestore denied access. Check your published Firestore security rules.';
+    return 'Firestore denied access. Check that your published Firestore rules match this code and that staff/' + (auth?.currentUser?.uid || 'YOUR_STAFF_UID') + ' has active set to Boolean true.';
   if (c.includes('unavailable'))
     return 'Firestore is temporarily unavailable. Try again.';
 
@@ -547,6 +547,8 @@ $('recordForm').addEventListener('submit',async e=>{
   updateEstimate();
   clearNotice('recordNotice');
 
+  let transactionCommitted = false;
+
   try {
     const user = auth.currentUser;
 
@@ -589,10 +591,16 @@ $('recordForm').addEventListener('submit',async e=>{
         throw new Error('INVALID_MEMBER_BALANCE');
       }
 
-      /* Both writes commit together, or neither write commits. */
+      /*
+       * UPDATED:
+       * Save the record ID on the member document so the Firestore
+       * rules can link the balance change to this recycling record.
+       * The balance update and record creation commit atomically.
+       */
       transaction.update(memberRef,{
         points: currentPoints + pointsAwarded,
-        visits: currentVisits + 1
+        visits: currentVisits + 1,
+        lastRecyclingRecordId: recordRef.id
       });
 
       transaction.set(recordRef,{
@@ -610,6 +618,8 @@ $('recordForm').addEventListener('submit',async e=>{
         createdAt: serverTimestamp()
       });
     });
+
+    transactionCommitted = true;
 
     /* Refresh the balance from Firestore after the transaction succeeds. */
     const updated = await getDoc(memberRef);
@@ -646,7 +656,13 @@ $('recordForm').addEventListener('submit',async e=>{
   } catch (err) {
     console.error('Recycling submission error:',err);
 
-    if (err.message === 'MEMBER_NOT_FOUND') {
+    if (transactionCommitted) {
+      notice(
+        'recordNotice',
+        'The recycling transaction was saved, but refreshing the member balance failed. Do not submit again. Reload the member record to check the updated balance.',
+        'error'
+      );
+    } else if (err.message === 'MEMBER_NOT_FOUND') {
       member = null;
       $('memberCard').classList.add('hidden');
       notice('recordNotice','The member document no longer exists. Find the member again.','error');
@@ -660,7 +676,7 @@ $('recordForm').addEventListener('submit',async e=>{
       notice(
         'recordNotice',
         'The record could not be saved. ' + friendly(err) +
-        ' Check your Firestore rules. Do not resubmit until you have checked whether a record was created.',
+        ' Check your published Firestore rules before trying again.',
         'error'
       );
     }
