@@ -1,0 +1,677 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f7f8f6">
+<title>WasteLess · Recycling Centre</title>
+<style>
+:root{--bg:#f7f8f6;--surface:#fff;--text:#202720;--muted:#788078;--line:#e5e9e3;--green:#28784c;--dark:#1d603b;--light:#eaf4ec;--red:#923d37;--radius:17px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit}
+button{cursor:pointer}
+button:disabled{opacity:.55;cursor:not-allowed}
+.app{max-width:1050px;margin:auto;padding:0 24px 40px}
+header{height:74px;display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:800;letter-spacing:-.6px}
+.brand-icon{width:36px;height:36px;border-radius:11px;background:var(--green);color:white;display:grid;place-items:center}
+.brand-icon svg{width:22px;height:22px}
+.muted{color:var(--muted)}
+.header-right{display:flex;align-items:center;gap:12px}
+.status{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted)}
+.dot{width:7px;height:7px;background:#b7beb7;border-radius:50%}
+.dot.online{background:#3c9b60}
+.btn{border:1px solid transparent;border-radius:10px;padding:11px 15px;background:var(--green);color:#fff;font-size:12px;font-weight:700}
+.btn:hover:not(:disabled){background:var(--dark)}
+.btn.secondary{background:#fff;color:var(--text);border-color:var(--line)}
+main{padding-top:28px}
+.hero{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:24px}
+.eyebrow{font-size:10px;letter-spacing:1.6px;text-transform:uppercase;font-weight:800;color:var(--green);margin-bottom:10px}
+h1{font-size:clamp(28px,4vw,40px);letter-spacing:-1.5px;line-height:1.12;margin:0}
+.hero p{font-size:13px;line-height:1.7;color:var(--muted);max-width:570px;margin:12px 0 0}
+.hero-art{width:78px;height:78px;flex-shrink:0;border-radius:24px;display:grid;place-items:center;background:var(--light);color:var(--green)}
+.hero-art svg{width:42px;height:42px}
+.grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(270px,.8fr);gap:18px;align-items:start}
+.stack{display:grid;gap:18px;min-width:0}
+.panel{padding:22px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);min-width:0}
+.panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px}
+h2{font-size:16px;letter-spacing:-.3px;margin:0}
+.sub{font-size:12px;line-height:1.65;color:var(--muted);margin:6px 0 0}
+.field{display:grid;gap:7px;margin-bottom:14px}
+.field label{font-size:12px;font-weight:700;color:#525a52}
+.field input,.field select{width:100%;border:1px solid #dfe5dd;background:white;border-radius:10px;padding:12px;outline:none;font-size:13px;color:var(--text)}
+.field input:focus,.field select:focus{border-color:var(--green);box-shadow:0 0 0 3px #28784c18}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.notice{display:none;margin-top:13px;padding:12px 13px;border-radius:10px;font-size:12px;line-height:1.6;overflow-wrap:anywhere}
+.notice.show{display:block}
+.notice.info{background:#eef3ed;color:#375640}
+.notice.success{background:#eaf6ed;color:#28663e}
+.notice.error{background:#fff0ef;color:#923d37}
+.member-card{padding:14px;background:#f7f9f6;border:1px solid var(--line);border-radius:12px;margin:12px 0 18px}
+.member-name{font-size:14px;font-weight:800}
+.member-meta{font-size:11px;color:var(--muted);margin-top:5px;overflow-wrap:anywhere}
+.summary{background:var(--light);border-radius:14px;padding:18px;margin:12px 0 16px}
+.summary-label{font-size:11px;color:#526c58}
+.summary-value{font-size:32px;letter-spacing:-1px;font-weight:800;color:var(--green);margin-top:6px}
+.summary-foot{font-size:11px;color:#526c58;margin-top:5px;line-height:1.5}
+.rate-list{display:grid;gap:10px}
+.rate-row{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #eff1ed;font-size:12px}
+.rate-row:last-child{border-bottom:0}
+.hidden{display:none!important}
+footer{border-top:1px solid var(--line);margin-top:28px;padding-top:18px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:11px}
+.security-note{font-size:11px;color:var(--muted);line-height:1.7;margin-top:15px}
+.pill{display:inline-block;border-radius:999px;padding:5px 9px;background:var(--light);color:var(--green);font-size:10px;font-weight:800}
+.auth-tabs{display:flex;gap:8px;margin-bottom:18px}
+.auth-tabs button{flex:1}
+@media(max-width:760px){.grid{grid-template-columns:1fr}}
+@media(max-width:540px){.app{padding:0 13px 28px}header{height:66px}.brand{font-size:17px}.status{display:none}.panel{padding:16px}.hero-art{width:58px;height:58px;border-radius:17px}.hero-art svg{width:31px;height:31px}.row{grid-template-columns:1fr}.hero{align-items:flex-start}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="brand"><span class="brand-icon" id="brandIcon"></span>WasteLess <span class="muted" style="font-weight:600;font-size:12px;letter-spacing:0">Centre</span></div>
+  <div class="header-right">
+    <div class="status"><span id="statusDot" class="dot"></span><span id="statusText">Connecting to Firebase</span></div>
+    <button class="btn secondary hidden" id="signOutBtn" type="button">Sign out</button>
+  </div>
+</header>
+
+<main>
+<section class="hero">
+  <div>
+    <div class="eyebrow">Staff portal · verified recycling</div>
+    <h1>Record recycling.<br>Reward real impact.</h1>
+    <p>Find a WasteLess member, weigh their recyclable materials, and submit a centre record.</p>
+  </div>
+  <div class="hero-art" id="heroIcon"></div>
+</section>
+
+<section class="panel" id="signInPanel">
+  <div class="panel-head">
+    <div><h2 id="authTitle">Staff sign in</h2><p class="sub" id="authSubtitle">Sign in with your recycling-centre staff account.</p></div>
+    <span class="pill">Staff access only</span>
+  </div>
+  <div class="auth-tabs">
+    <button class="btn" id="showLoginBtn" type="button">Sign in</button>
+    <button class="btn secondary" id="showRegisterBtn" type="button">Create account</button>
+  </div>
+  <form id="authForm">
+    <div class="field">
+      <label for="email">Staff email</label>
+      <input id="email" type="email" autocomplete="username" required placeholder="staff@example.com">
+    </div>
+    <div class="field">
+      <label for="password">Password</label>
+      <input id="password" type="password" autocomplete="current-password" minlength="6" required placeholder="At least 6 characters">
+    </div>
+    <button class="btn" id="authSubmitBtn" type="submit">Sign in securely</button>
+  </form>
+  <div id="authNotice" class="notice" role="status" aria-live="polite"></div>
+  <p class="security-note">New accounts must be approved by an administrator before they can record recycling.</p>
+</section>
+
+<section id="staffApp" class="hidden">
+<div class="grid" style="margin-top:18px">
+<div class="stack">
+<section class="panel">
+  <div class="panel-head"><div><h2>1. Find member</h2><p class="sub">Enter the member's email address.</p></div></div>
+  <form id="lookupForm">
+    <div class="field"><label for="memberIdentifier">Member email</label><input id="memberIdentifier" type="email" required autocomplete="off" placeholder="member@example.com"></div>
+    <button class="btn" id="lookupBtn" type="submit">Find member</button>
+  </form>
+  <div id="lookupNotice" class="notice" role="status" aria-live="polite"></div>
+  <div id="memberCard" class="member-card hidden">
+    <div class="member-name" id="memberName"></div>
+    <div class="member-meta" id="memberMeta"></div>
+    <div class="member-meta" id="memberBalance"></div>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-head"><div><h2>2. Record materials</h2><p class="sub">Use the measured mass from the centre's weighing scale.</p></div></div>
+  <form id="recordForm">
+    <div class="field">
+      <label for="material">Material type</label>
+      <select id="material" required>
+        <option value="plastic">Plastic — 10 points/kg</option>
+        <option value="paper">Paper &amp; cardboard — 5 points/kg</option>
+        <option value="glass">Glass — 5 points/kg</option>
+        <option value="metal">Metal — 15 points/kg</option>
+        <option value="ewaste">E-waste — 20 points/kg</option>
+        <option value="textile">Textiles — 8 points/kg</option>
+      </select>
+    </div>
+    <div class="row">
+      <div class="field"><label for="massKg">Mass (kg)</label><input id="massKg" type="number" min="0.01" max="1000" step="0.01" required placeholder="e.g. 1.25"></div>
+      <div class="field"><label for="centreId">Centre / station ID</label><input id="centreId" maxlength="50" required placeholder="e.g. CENTRE-001"></div>
+    </div>
+    <div class="summary">
+      <div class="summary-label">Estimated award</div>
+      <div class="summary-value"><span id="estimatedPoints">0</span> pts</div>
+      <div class="summary-foot" id="estimateDetails">Enter a valid mass to calculate points.</div>
+    </div>
+    <button class="btn" id="recordBtn" type="submit" disabled>Submit verified record</button>
+  </form>
+  <div id="recordNotice" class="notice" role="status" aria-live="polite"></div>
+  <p class="security-note">Each successful submission is saved to Firestore and updates the member's points and visit count.</p>
+</section>
+</div>
+
+<aside class="stack">
+<section class="panel">
+  <div class="panel-head"><div><h2>Points rates</h2><p class="sub">Rates displayed by this interface</p></div></div>
+  <div class="rate-list" id="rateList"></div>
+  <p class="security-note">Estimated points = points per kilogram × mass, rounded down.</p>
+</section>
+<section class="panel">
+  <h2>Centre checklist</h2>
+  <div class="rate-list" style="margin-top:10px">
+    <div class="rate-row"><span>Confirm member identity</span><strong>01</strong></div>
+    <div class="rate-row"><span>Separate material types</span><strong>02</strong></div>
+    <div class="rate-row"><span>Enter measured mass in kg</span><strong>03</strong></div>
+    <div class="rate-row"><span>Review and submit once</span><strong>04</strong></div>
+  </div>
+</section>
+</aside>
+</div>
+</section>
+</main>
+<footer><span>WasteLess · Recycling Centre</span><span>Staff actions are recorded in Firestore.</span></footer>
+</div>
+
+<script type="module">
+import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
+import {
+  getAuth,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut
+} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+  runTransaction,
+  serverTimestamp
+} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: 'AIzaSyAkf4_T0GuG6UYG5VgwqSf1yIgAKc_RZzI',
+  authDomain: 'wasteless-7d8eb.firebaseapp.com',
+  projectId: 'wasteless-7d8eb',
+  storageBucket: 'wasteless-7d8eb.firebasestorage.app',
+  messagingSenderId: '547430030019',
+  appId: '1:547430030019:web:432cc749bc1e14e1fb2076'
+};
+
+const $ = id => document.getElementById(id);
+const icon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 4c-9 0-15 4-15 11a5 5 0 0 0 5 5c7 0 11-7 10-16Z"/><path d="M4 21c3-6 7-9 12-12"/></svg>';
+$('brandIcon').innerHTML = icon;
+$('heroIcon').innerHTML = icon;
+
+const materials = {
+  plastic:{label:'Plastic',rate:10},
+  paper:{label:'Paper & cardboard',rate:5},
+  glass:{label:'Glass',rate:5},
+  metal:{label:'Metal',rate:15},
+  ewaste:{label:'E-waste',rate:20},
+  textile:{label:'Textiles',rate:8}
+};
+
+let auth = null;
+let db = null;
+let staffActive = false;
+let member = null;
+let authMode = 'login';
+let lookupRequest = 0;
+let recordInProgress = false;
+
+function notice(id,msg,type='info') {
+  const el = $(id);
+  el.textContent = msg;
+  el.className = 'notice show ' + type;
+}
+
+function clearNotice(id) {
+  $(id).textContent = '';
+  $(id).className = 'notice';
+}
+
+function setStatus(msg,online=false) {
+  $('statusText').textContent = msg;
+  $('statusDot').classList.toggle('online',online);
+}
+
+function friendly(e) {
+  const c = e?.code || '';
+
+  if (c.includes('api-key-not-valid') || c.includes('API_KEY_INVALID'))
+    return 'Firebase rejected this API key. Check the API key for project wasteless-7d8eb.';
+  if (c.includes('auth/unauthorized-domain'))
+    return 'This domain is not authorised. Add your hostname in Firebase Authentication settings.';
+  if (c.includes('auth/operation-not-allowed'))
+    return 'Email/Password sign-in is disabled in Firebase Authentication.';
+  if (c.includes('auth/email-already-in-use'))
+    return 'An account with this email already exists. Choose Sign in instead.';
+  if (c.includes('auth/weak-password'))
+    return 'Choose a stronger password with at least 6 characters.';
+  if (c.includes('auth/invalid-credential') || c.includes('auth/invalid-login-credentials'))
+    return 'The email or password is incorrect.';
+  if (c.includes('auth/too-many-requests'))
+    return 'Too many attempts. Wait a while and try again.';
+  if (c.includes('permission-denied'))
+    return 'Firestore denied access. Check your published Firestore security rules.';
+  if (c.includes('unavailable'))
+    return 'Firestore is temporarily unavailable. Try again.';
+
+  return e?.message || 'Something went wrong. Please try again.';
+}
+
+function renderRates() {
+  $('rateList').replaceChildren();
+
+  for (const m of Object.values(materials)) {
+    const row = document.createElement('div');
+    row.className = 'rate-row';
+
+    const name = document.createElement('span');
+    name.textContent = m.label;
+
+    const rate = document.createElement('strong');
+    rate.textContent = m.rate + ' pts/kg';
+
+    row.append(name,rate);
+    $('rateList').append(row);
+  }
+}
+
+function updateEstimate() {
+  const raw = Number($('massKg').value);
+  const rate = materials[$('material').value]?.rate || 0;
+  const valid = Number.isFinite(raw) && raw >= 0.01 && raw <= 1000;
+  const points = valid ? Math.floor(raw * rate) : 0;
+
+  $('estimatedPoints').textContent = points.toLocaleString();
+
+  $('estimateDetails').textContent = valid
+    ? `${raw.toFixed(2)} kg × ${rate} points/kg. Estimated award.`
+    : 'Enter a mass from 0.01 kg to 1,000 kg.';
+
+  $('recordBtn').disabled =
+    !member || !staffActive || !valid || points < 1 || recordInProgress;
+}
+
+function setAuthMode(mode) {
+  authMode = mode;
+  const register = mode === 'register';
+
+  $('authTitle').textContent = register ? 'Create staff account' : 'Staff sign in';
+  $('authSubtitle').textContent = register
+    ? 'Create an account for administrator approval.'
+    : 'Sign in with your recycling-centre staff account.';
+  $('authSubmitBtn').textContent = register ? 'Create account' : 'Sign in securely';
+  $('password').autocomplete = register ? 'new-password' : 'current-password';
+  $('showLoginBtn').className = register ? 'btn secondary' : 'btn';
+  $('showRegisterBtn').className = register ? 'btn' : 'btn secondary';
+
+  clearNotice('authNotice');
+}
+
+$('showLoginBtn').addEventListener('click',()=>setAuthMode('login'));
+$('showRegisterBtn').addEventListener('click',()=>setAuthMode('register'));
+
+renderRates();
+$('material').addEventListener('change',updateEstimate);
+$('massKg').addEventListener('input',updateEstimate);
+
+async function initialiseFirebase() {
+  try {
+    const app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    db = getFirestore(app);
+    setStatus('Firebase connected',true);
+    setupAuthentication();
+  } catch (err) {
+    setStatus('Firebase setup error');
+    notice('authNotice',friendly(err),'error');
+    console.error('Firebase initialisation error:',err);
+  }
+}
+
+$('authForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+
+  if (!auth) {
+    notice('authNotice','Firebase has not connected. Check your configuration and reload this page.','error');
+    return;
+  }
+
+  $('authSubmitBtn').disabled = true;
+  clearNotice('authNotice');
+
+  try {
+    const email = $('email').value.trim();
+    const password = $('password').value;
+
+    if (authMode === 'register') {
+      await createUserWithEmailAndPassword(auth,email,password);
+      notice('authNotice','Account created. An administrator must approve your staff access in Firestore.','success');
+    } else {
+      await signInWithEmailAndPassword(auth,email,password);
+    }
+  } catch (err) {
+    notice('authNotice',friendly(err),'error');
+    console.error('Authentication error:',err);
+  } finally {
+    $('authSubmitBtn').disabled = false;
+  }
+});
+
+$('signOutBtn').addEventListener('click',async()=>{
+  if (auth) await signOut(auth);
+});
+
+function setupAuthentication() {
+  onAuthStateChanged(auth,async user=>{
+    member = null;
+    staffActive = false;
+    $('memberCard').classList.add('hidden');
+    $('staffApp').classList.add('hidden');
+    $('signInPanel').classList.toggle('hidden',!!user);
+    $('signOutBtn').classList.toggle('hidden',!user);
+    updateEstimate();
+
+    if (!user) {
+      setStatus('Signed out');
+      return;
+    }
+
+    setStatus('Checking staff access');
+
+    try {
+      const staffDoc = await getDoc(doc(db,'staff',user.uid));
+      staffActive = staffDoc.exists() && staffDoc.data().active === true;
+
+      if (!staffActive) {
+        $('signInPanel').classList.remove('hidden');
+        notice(
+          'authNotice',
+          'Your account exists, but staff access has not been approved. Check that staff/' +
+          user.uid + ' exists in Firestore and has active set to the Boolean true.',
+          'error'
+        );
+        setStatus('Staff access denied');
+        await signOut(auth).catch(()=>{});
+        return;
+      }
+
+      $('staffApp').classList.remove('hidden');
+      $('signInPanel').classList.add('hidden');
+      setStatus('Authorised staff',true);
+      notice('recordNotice','Find a member to start recording recyclables.','info');
+    } catch (err) {
+      console.error('Staff authorisation error:',err);
+      setStatus('Approval check failed');
+      $('signInPanel').classList.remove('hidden');
+      notice('authNotice',friendly(err),'error');
+    }
+  });
+}
+
+/* Find a member using the email field in users/{documentId}. */
+$('lookupForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+
+  if (!auth?.currentUser || !staffActive) {
+    notice('lookupNotice','Please sign in with an approved staff account.','error');
+    return;
+  }
+
+  const email = $('memberIdentifier').value.trim().toLowerCase();
+  const requestId = ++lookupRequest;
+  const btn = $('lookupBtn');
+
+  member = null;
+  $('memberCard').classList.add('hidden');
+  updateEstimate();
+  clearNotice('lookupNotice');
+  clearNotice('recordNotice');
+
+  btn.disabled = true;
+  btn.textContent = 'Searching...';
+
+  try {
+    const q = query(
+      collection(db,'users'),
+      where('email','==',email)
+    );
+
+    const results = await getDocs(q);
+
+    if (requestId !== lookupRequest) return;
+
+    if (results.empty) {
+      notice(
+        'lookupNotice',
+        'No member found. Make sure the users document has an email field matching this address.',
+        'error'
+      );
+      return;
+    }
+
+    if (results.size > 1) {
+      notice(
+        'lookupNotice',
+        'Duplicate member email found. Correct the duplicate email fields in Firestore first.',
+        'error'
+      );
+      return;
+    }
+
+    const snap = results.docs[0];
+    const data = snap.data();
+
+    member = {
+      uid: snap.id,
+      email,
+      displayName: data.displayName || 'WasteLess member',
+      points: Number(data.points || 0),
+      visits: Number(data.visits || 0)
+    };
+
+    $('memberName').textContent = member.displayName;
+    $('memberMeta').textContent =
+      'Member email: ' + member.email + ' · Visits: ' + member.visits;
+    $('memberBalance').textContent =
+      'Current balance: ' + member.points.toLocaleString() + ' points';
+
+    $('memberCard').classList.remove('hidden');
+    notice('lookupNotice','Member found successfully.','success');
+  } catch (err) {
+    console.error('Member lookup error:',err);
+    notice('lookupNotice',friendly(err),'error');
+  } finally {
+    if (requestId === lookupRequest) {
+      btn.disabled = false;
+      btn.textContent = 'Find member';
+      updateEstimate();
+    }
+  }
+});
+
+/* Save the recycling record and update member points atomically. */
+$('recordForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+
+  if (recordInProgress) return;
+
+  if (!auth?.currentUser || !staffActive) {
+    notice('recordNotice','Please sign in with an approved staff account.','error');
+    return;
+  }
+
+  if (!member) {
+    notice('recordNotice','Find a member before recording materials.','error');
+    return;
+  }
+
+  const selectedMember = {...member};
+  const materialKey = $('material').value;
+  const material = materials[materialKey];
+  const massKg = Number($('massKg').value);
+  const centreId = $('centreId').value.trim();
+
+  if (!material || !Number.isFinite(massKg) ||
+      massKg < 0.01 || massKg > 1000 || !centreId) {
+    notice('recordNotice','Enter a valid material, mass and centre ID.','error');
+    return;
+  }
+
+  const pointsAwarded = Math.floor(massKg * material.rate);
+
+  if (pointsAwarded < 1) {
+    notice('recordNotice','This mass earns less than 1 point. Enter a larger mass.','error');
+    return;
+  }
+
+  recordInProgress = true;
+  $('recordBtn').textContent = 'Submitting...';
+  updateEstimate();
+  clearNotice('recordNotice');
+
+  try {
+    const user = auth.currentUser;
+
+    /* Recheck approval immediately before submitting. */
+    const staffSnap = await getDoc(doc(db,'staff',user.uid));
+
+    if (!staffSnap.exists() || staffSnap.data().active !== true) {
+      staffActive = false;
+      member = null;
+      $('memberCard').classList.add('hidden');
+      $('staffApp').classList.add('hidden');
+      $('signInPanel').classList.remove('hidden');
+      await signOut(auth).catch(()=>{});
+      notice('authNotice','Staff approval is no longer active.','error');
+      return;
+    }
+
+    const memberRef = doc(db,'users',selectedMember.uid);
+    const recordRef = doc(collection(db,'recyclingRecords'));
+
+    await runTransaction(db,async transaction=>{
+      const memberSnap = await transaction.get(memberRef);
+
+      if (!memberSnap.exists()) {
+        throw new Error('MEMBER_NOT_FOUND');
+      }
+
+      const data = memberSnap.data();
+      const storedEmail = String(data.email || '').trim().toLowerCase();
+
+      if (storedEmail !== selectedMember.email) {
+        throw new Error('MEMBER_EMAIL_CHANGED');
+      }
+
+      const currentPoints = Number(data.points ?? 0);
+      const currentVisits = Number(data.visits ?? 0);
+
+      if (!Number.isFinite(currentPoints) || currentPoints < 0 ||
+          !Number.isFinite(currentVisits) || currentVisits < 0) {
+        throw new Error('INVALID_MEMBER_BALANCE');
+      }
+
+      /* Both writes commit together, or neither write commits. */
+      transaction.update(memberRef,{
+        points: currentPoints + pointsAwarded,
+        visits: currentVisits + 1
+      });
+
+      transaction.set(recordRef,{
+        memberId: selectedMember.uid,
+        memberEmail: selectedMember.email,
+        memberName: data.displayName || 'WasteLess member',
+        material: materialKey,
+        materialName: material.label,
+        massKg,
+        pointsAwarded,
+        ratePerKg: material.rate,
+        centreId,
+        staffUid: user.uid,
+        staffEmail: user.email || '',
+        createdAt: serverTimestamp()
+      });
+    });
+
+    /* Refresh the balance from Firestore after the transaction succeeds. */
+    const updated = await getDoc(memberRef);
+
+    if (updated.exists()) {
+      const data = updated.data();
+
+      member = {
+        uid: selectedMember.uid,
+        email: selectedMember.email,
+        displayName: data.displayName || 'WasteLess member',
+        points: Number(data.points || 0),
+        visits: Number(data.visits || 0)
+      };
+
+      $('memberName').textContent = member.displayName;
+      $('memberMeta').textContent =
+        'Member email: ' + member.email + ' · Visits: ' + member.visits;
+      $('memberBalance').textContent =
+        'Current balance: ' + member.points.toLocaleString() + ' points';
+    }
+
+    $('massKg').value = '';
+    updateEstimate();
+
+    notice(
+      'recordNotice',
+      'Recycling record saved successfully! ' + pointsAwarded +
+      ' points awarded for ' + massKg + ' kg of ' + material.label +
+      '. Member points and visits have been updated.',
+      'success'
+    );
+
+  } catch (err) {
+    console.error('Recycling submission error:',err);
+
+    if (err.message === 'MEMBER_NOT_FOUND') {
+      member = null;
+      $('memberCard').classList.add('hidden');
+      notice('recordNotice','The member document no longer exists. Find the member again.','error');
+    } else if (err.message === 'MEMBER_EMAIL_CHANGED') {
+      member = null;
+      $('memberCard').classList.add('hidden');
+      notice('recordNotice','The member email has changed. Find the member again.','error');
+    } else if (err.message === 'INVALID_MEMBER_BALANCE') {
+      notice('recordNotice','The member points or visits value is invalid. Correct it in Firestore first.','error');
+    } else {
+      notice(
+        'recordNotice',
+        'The record could not be saved. ' + friendly(err) +
+        ' Check your Firestore rules. Do not resubmit until you have checked whether a record was created.',
+        'error'
+      );
+    }
+  } finally {
+    recordInProgress = false;
+    $('recordBtn').textContent = 'Submit verified record';
+    updateEstimate();
+  }
+});
+
+initialiseFirebase();
+</script>
+</body>
+</html>
